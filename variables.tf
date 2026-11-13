@@ -103,5 +103,38 @@ EOT
       use_kerberos_for_password_authentication = optional(bool)
     }))
   }))
+  validation {
+    condition = alltrue([
+      for k, v in var.ldap_user_federations : (
+        v.bind_credential_wo_version == null || (length(v.bind_credential_wo_version) > 0)
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.ldap_user_federations : (
+        v.cache == null || (v.cache.eviction_day == null || ((v.cache.eviction_day >= 0) && (v.cache.eviction_day <= 6)))
+      )
+    ])
+    error_message = "all of: must be at least 0; must be at most 6"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.ldap_user_federations : (
+        v.cache == null || (v.cache.eviction_hour == null || ((v.cache.eviction_hour >= 0) && (v.cache.eviction_hour <= 23)))
+      )
+    ])
+    error_message = "all of: must be at least 0; must be at most 23"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.ldap_user_federations : (
+        v.cache == null || (v.cache.eviction_minute == null || ((v.cache.eviction_minute >= 0) && (v.cache.eviction_minute <= 59)))
+      )
+    ])
+    error_message = "all of: must be at least 0; must be at most 59"
+  }
+  # Note: 8 additional provider-side validators are enforced at apply time but not mirrored as validation{} blocks here (bespoke or non-mechanically-translatable).
 }
 
